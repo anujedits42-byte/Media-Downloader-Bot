@@ -22,5 +22,8 @@ async def bot_commands(bot: Bot, settings: Settings):
     ]
 
     for admin_id in settings.admins_ids:
-        scope = BotCommandScopeChat(chat_id=int(admin_id))
-        await bot.set_my_commands(commands=admin_commands, scope=scope)
+        try:
+            scope = BotCommandScopeChat(chat_id=int(admin_id))
+            await bot.set_my_commands(commands=admin_commands, scope=scope)
+        except Exception as e:
+            logger.warning(f"Could not set admin commands for chat {admin_id}: {e}")
