@@ -1,22 +1,21 @@
-import asyncio
 import os
+import asyncio
+import logging
 from threading import Thread
 from web import app
 
 def run_flask():
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
 
 async def start_bot():
-    from aiogram import Bot, Dispatcher
-
-    bot = Bot(token=os.getenv("BOT_TOKEN"))
-    dp = Dispatcher()
-
-    # handlers yahan add karo
-
-    await dp.start_polling(bot)
+    try:
+        from src.app.main import main
+        await main()
+    except Exception as e:
+        logging.exception(f"Bot failed to start: {e}")
 
 if __name__ == "__main__":
-    Thread(target=run_flask).start()
+    logging.basicConfig(level=logging.INFO)
+    Thread(target=run_flask, daemon=True).start()
     asyncio.run(start_bot())
