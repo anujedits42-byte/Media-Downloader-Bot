@@ -8,12 +8,13 @@ pyyaml
 aiohttp
 aiofiles
 requests
-yt_dlp
+yt-dlp
 instaloader
 shazamio
 pedalboard
 babel
 urllib3
-faster_whisper
+faster-whisper
 pydub
 selenium
+certifi
