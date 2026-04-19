@@ -1,4 +1,5 @@
 import asyncio
+import os   # ✅ ye missing tha
 from yt_dlp import YoutubeDL
 
 from src.app.services.media_downloaders.utils.files import get_video_file_name
@@ -16,13 +17,14 @@ class YouTubeDownloader:
 
         try:
             cookie_path = os.path.join(os.path.dirname(__file__), "cookies.txt")
-            
+
             ydl_opts = {
                 "format": "best[ext=mp4]",
                 "outtmpl": video_path,
                 "merge_output_format": "mp4",
                 "quiet": True,
                 "no_warnings": True,
+                "cookiefile": cookie_path,   # ✅ ye add karna zaroori hai
                 "postprocessors": [{"key": "FFmpegMetadata"}],
             }
 
