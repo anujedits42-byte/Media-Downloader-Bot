@@ -18,3 +18,4 @@ faster-whisper
 pydub
 selenium
 certifi
+flask
