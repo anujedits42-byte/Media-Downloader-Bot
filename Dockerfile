@@ -2,7 +2,9 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
-# ✅ System deps + Node.js + ffmpeg
+# =========================
+# SYSTEM DEPENDENCIES
+# =========================
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     curl \
@@ -11,12 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     libatomic1 \
     libstdc++6 \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# ✅ Chrome (selenium ke liye)
-RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -36,17 +32,41 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxkbcommon0 \
     libxrandr2 \
     xdg-utils \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && rm -rf /var/lib/apt/lists/*
+
+# =========================
+# NODEJS (SAFE METHOD)
+# =========================
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# =========================
+# GOOGLE CHROME (FIXED WAY)
+# =========================
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+    > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
-# ✅ Python deps
+# =========================
+# PYTHON DEPENDENCIES
+# =========================
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# ✅ App copy
+# =========================
+# APP CODE
+# =========================
 COPY . .
+
+# =========================
+# SAFE RUN CONFIG
+# =========================
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 CMD ["python", "-m", "src.app.main"]
