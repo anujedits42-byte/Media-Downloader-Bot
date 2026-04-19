@@ -1,5 +1,5 @@
 import asyncio
-import os   # ✅ ye missing tha
+import os
 from yt_dlp import YoutubeDL
 
 from src.app.services.media_downloaders.utils.files import get_video_file_name
@@ -12,19 +12,35 @@ class YouTubeDownloader:
         self.searchs = YouTubeSearcher()
 
     async def youtube_video_and_shorts_downloader(self, video_url: str):
+        os.makedirs("./media/videos", exist_ok=True)
+
         video_path = f"./media/videos/{get_video_file_name()}"
         errors = []
 
         try:
-            cookie_path = os.path.join(os.path.dirname(__file__), "cookies.txt")
+            # ✅ FIXED cookies path
+            cookie_path = "cookies.txt"
 
             ydl_opts = {
-                "format": "best[ext=mp4]",
+                "format": "bestvideo[height<=1080]+bestaudio/best",
                 "outtmpl": video_path,
                 "merge_output_format": "mp4",
                 "quiet": True,
                 "no_warnings": True,
-                "cookiefile": cookie_path,   # ✅ ye add karna zaroori hai
+                "cookiefile": cookie_path,
+
+                # ✅ anti-block
+                "sleep_interval": 3,
+                "retries": 10,
+                "http_headers": {
+                    "User-Agent": "Mozilla/5.0"
+                },
+                "extractor_args": {
+                    "youtube": {
+                        "player_client": ["android", "web"]
+                    }
+                },
+
                 "postprocessors": [{"key": "FFmpegMetadata"}],
             }
 
@@ -47,5 +63,5 @@ class YouTubeDownloader:
             return video_path, errors
 
         except Exception as e:
-            print(f"ERROR: {e}")
+            print("FULL ERROR:", str(e))
             return None, [DownloadError.DOWNLOAD_ERROR]
