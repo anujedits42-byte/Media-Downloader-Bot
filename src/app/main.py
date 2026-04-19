@@ -1,15 +1,15 @@
 import asyncio
 import logging
 import os
-
 import asyncpg
+
 from aiogram import Dispatcher, Bot, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.client.telegram import TelegramAPIServer
-from aiogram.fsm.storage.base import DefaultKeyBuilder
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.base import DefaultKeyBuilder
 from aiogram_dialog import setup_dialogs
 
 from logs.loggger_conf import setup_logging
@@ -31,18 +31,16 @@ async def main():
 
     dsn = construct_postgresql_url(settings)
 
-    pool = await asyncpg.create_pool(
-        dsn,
-    )
+    pool = await asyncpg.create_pool(dsn)
 
     async with pool.acquire() as conn:
         await create_database_tables(conn)
 
+    # Storage setup
     if settings.bot_user_redis:
         key_builder = DefaultKeyBuilder(with_destiny=True)
-
         storage = RedisStorage.from_url(
-            f'redis://{settings.redis_host}:6379/{settings.redis_db_name}',
+            f"redis://{settings.redis_host}:6379/{settings.redis_db_name}",
             key_builder=key_builder
         )
     else:
@@ -54,36 +52,46 @@ async def main():
     other_router = Router()
 
     register_all_dialogs(dialogs_router)
-
-    register_middleware(dp, settings, pool)
     register_all_router(dp, settings)
+    register_middleware(dp, settings, pool)
 
     dp.include_router(dialogs_router)
     dp.include_router(other_router)
 
     setup_dialogs(dp)
 
+    session = AiohttpSession(
+        api=TelegramAPIServer.from_base(settings.tg_api_server_url)
+    )
 
+    bot = Bot(
+        token=settings.bot_token,
+        session=session,
+        default=DefaultBotProperties(parse_mode="HTML")
+    )
 
-    session = AiohttpSession(api=TelegramAPIServer.from_base(settings.tg_api_server_url))
+    # 🔥 IMPORTANT FIX FOR YOUR ERROR
+    await bot.delete_webhook(drop_pending_updates=True)
 
-    bot = Bot(token=settings.bot_token, session=session, default=DefaultBotProperties(parse_mode="HTML"))
-
+    # background tasks
     asyncio.create_task(daily_database_sender(bot, settings.admins_ids, pool))
     asyncio.create_task(requirements_updater())
 
     await bot_commands(bot, settings)
 
-    await bot.delete_webhook(drop_pending_updates=True)  # ✅ ADD THIS
-    
-    await dp.start_polling(bot)
+    logger.info("Bot started successfully 🚀")
 
-
+    # 🚀 SAFE POLLING (prevents conflict issues)
+    await dp.start_polling(
+        bot,
+        allowed_updates=dp.resolve_used_update_types()
+    )
 
 
 if __name__ == "__main__":
     try:
         setup_logging("logs/logger.yml")
+
         os.makedirs("media/videos", exist_ok=True)
         os.makedirs("media/audios", exist_ok=True)
         os.makedirs("media/photos", exist_ok=True)
@@ -92,5 +100,3 @@ if __name__ == "__main__":
 
     except Exception as e:
         logger.exception(e)
-
-
