@@ -15,6 +15,8 @@ class YouTubeDownloader:
         errors = []
 
         try:
+            cookie_path = os.path.join(os.path.dirname(__file__), "cookies.txt")
+            
             ydl_opts = {
                 "format": "best[ext=mp4]",
                 "outtmpl": video_path,
