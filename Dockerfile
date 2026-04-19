@@ -2,17 +2,21 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
+# ✅ System deps + Node.js + ffmpeg
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    libatomic1 \
-    libstdc++6 \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
     curl \
     gnupg \
     ca-certificates \
+    wget \
+    libatomic1 \
+    libstdc++6 \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# ✅ Chrome (selenium ke liye)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -38,10 +42,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
+# ✅ Python deps
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
+# ✅ App copy
 COPY . .
 
 CMD ["python", "-m", "src.app.main"]
-
