@@ -5,7 +5,7 @@ env.read_env()
 
 
 class Settings:
-    bot_token = env.str("BOT_TOKEN", "8730656807:AAELwgKyeFyp1_LWGAYqRCXFpeAjWvoq0_U")
+    bot_token = env.str("BOT_TOKEN", "8730656807:AAEb61aU6vTWCTkdpy6SLQ36T4m573fIoWQ")
     bot_user_redis = env.bool("BOT_USE_REDIS", default=False)
     tg_api_server_url = env.str("TG_API_SERVER_URL", default="https://api.telegram.org")
     admins_ids = env.list("ADMINS_IDS", default=[7892805795])
