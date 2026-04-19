@@ -74,6 +74,8 @@ async def main():
 
     await bot_commands(bot, settings)
 
+    await bot.delete_webhook(drop_pending_updates=True)  # ✅ ADD THIS
+    
     await dp.start_polling(bot)
 
 
