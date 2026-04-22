@@ -14,7 +14,7 @@ class Settings:
     db_user = env.str("POSTGRES_USER", "media_1rb3_user")
     db_password = env.str("POSTGRES_PASSWORD", "2oUMuOnjKhiDpDOid0SW5TfaBpiQTowQ")
     db_host = env.str("POSTGRES_HOST", "dpg-d7hrc1nlk1mc739h148g-a")
-    db_port = env.str("POSTGRES_PORT, "5432")
+    db_port = env.str("POSTGRES_PORT", "5432")
 
     redis_host = env.str("REDIS_HOST", default="localhost")
     redis_db_name = env.str("REDIS_DB", default="0")
