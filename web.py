@@ -1,21 +1,12 @@
-import asyncio
-from threading import Thread
-from web import app
-from pyrogram import idle
-from bot import bot
+from flask import Flask
 
-# Flask run
-def run_web():
-    app.run(host="0.0.0.0", port=5000)
+app = Flask(__name__)
 
-# Bot run
-async def run_bot():
-    await bot.start()
-    print("Bot started ✅")
-    await idle()
-    await bot.stop()
+@app.route("/")
+def home():
+    return "Bot is running ✅"
 
-# Start both
+
+# 👇 Ye add karo taaki direct run bhi ho sake
 if __name__ == "__main__":
-    Thread(target=run_web).start()
-    asyncio.run(run_bot())
+    app.run(host="0.0.0.0", port=5000)
