@@ -73,4 +73,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 EXPOSE 5000
 
 # 🔥 USE THIS (if run.py banaya hai)
-CMD ["python", "run.py"]
+CMD ["python", "web.py"]
