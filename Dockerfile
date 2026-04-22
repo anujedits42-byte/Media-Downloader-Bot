@@ -35,14 +35,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # =========================
-# NODEJS (SAFE METHOD)
+# NODEJS
 # =========================
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # =========================
-# GOOGLE CHROME (FIXED WAY)
+# GOOGLE CHROME
 # =========================
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /usr/share/keyrings/google.gpg \
     && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
@@ -64,9 +64,13 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY . .
 
 # =========================
-# SAFE RUN CONFIG
+# ENV
 # =========================
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-CMD ["python", "-m", "src.app.main"]
+# 🔥 ADD THIS
+EXPOSE 5000
+
+# 🔥 USE THIS (if run.py banaya hai)
+CMD ["python", "run.py"]
